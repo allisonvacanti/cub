@@ -167,6 +167,13 @@ __global__ void RadixSortScanBinsKernel(
         block_scan.template ConsumeTile<false, false>(block_offset, prefix_op);
         block_offset += AgentScanT::TILE_ITEMS;
     }
+
+    // Process the remaining partial tile (if any).
+    if (block_offset < num_counts)
+    {
+        block_scan.template ConsumeTile<false, true>(block_offset, prefix_op,
+                                                     num_counts - block_offset);
+    }
 }
 
 
@@ -1117,6 +1124,9 @@ struct DispatchRadixSort :
                 pass_config.even_share.grid_size, pass_config.upsweep_config.block_threads, (long long) stream,
                 pass_config.upsweep_config.items_per_thread, pass_config.upsweep_config.sm_occupancy, current_bit, pass_bits);
 
+            // Spine length written by the upsweep kernel in the current pass.
+            int pass_spine_length = pass_config.even_share.grid_size * pass_config.radix_digits;
+
             // Invoke upsweep_kernel with same grid size as downsweep_kernel
             thrust::cuda_cub::launcher::triple_chevron(
                 pass_config.even_share.grid_size,
@@ -1144,7 +1154,7 @@ struct DispatchRadixSort :
                 1, pass_config.scan_config.block_threads, 0, stream
             ).doit(pass_config.scan_kernel,
                 d_spine,
-                spine_length);
+                pass_spine_length);
 
             // Check for failure to launch
             if (CubDebug(error = cudaPeekAtLastError())) break;
