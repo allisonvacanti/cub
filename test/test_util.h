@@ -288,7 +288,7 @@ struct CommandLineArgs
             CubDebugExit(cudaMemGetInfo(&device_free_physmem, &device_total_physmem));
 
             int ptx_version = 0;
-            error = CubDebug(cub::PtxVersion(ptx_version));
+            error = CubDebug(CUB_NS_QUALIFIER::PtxVersion(ptx_version));
             if (error) break;
 
             error = CubDebug(cudaGetDeviceProperties(&deviceProp, dev));
@@ -560,7 +560,7 @@ __host__ __device__ __forceinline__ void InitValue(GenMode gen_mode, T &value, i
     case RANDOM_MINUS_PLUS_ZERO:
     {
         // Replace roughly 1/128 of values with -0.0 or +0.0, and generate the rest randomly
-        typedef typename cub::Traits<T>::UnsignedBits UnsignedBits;
+        typedef typename CUB_NS_QUALIFIER::Traits<T>::UnsignedBits UnsignedBits;
         char c;
         RandomBits(c);
         if (c == 0)
@@ -623,7 +623,7 @@ __host__ __device__ __forceinline__ void InitValue(GenMode gen_mode, bool &value
  * cub::NullType test initialization
  */
 __host__ __device__ __forceinline__ void InitValue(GenMode /* gen_mode */,
-						   cub::NullType &/* value */,
+						   CUB_NS_QUALIFIER::NullType &/* value */,
 						   int /* index */ = 0)
 {}
 
@@ -634,7 +634,7 @@ __host__ __device__ __forceinline__ void InitValue(GenMode /* gen_mode */,
 template <typename KeyT, typename ValueT>
 __host__ __device__ __forceinline__ void InitValue(
     GenMode                             gen_mode,
-    cub::KeyValuePair<KeyT, ValueT>&    value,
+    CUB_NS_QUALIFIER::KeyValuePair<KeyT, ValueT>&    value,
     int                                 index = 0)
 {
     InitValue(gen_mode, value.value, index);
@@ -654,7 +654,7 @@ __host__ __device__ __forceinline__ void InitValue(
  * KeyValuePair ostream operator
  */
 template <typename Key, typename Value>
-std::ostream& operator<<(std::ostream& os, const cub::KeyValuePair<Key, Value> &val)
+std::ostream& operator<<(std::ostream& os, const CUB_NS_QUALIFIER::KeyValuePair<Key, Value> &val)
 {
     os << '(' << CoutCast(val.key) << ',' << CoutCast(val.value) << ')';
     return os;
@@ -718,7 +718,7 @@ std::ostream& operator<<(std::ostream& os, const cub::KeyValuePair<Key, Value> &
         T retval = make_##T(a.x + b.x);                     \
         return retval;                                      \
     }                                                       \
-    namespace cub {                                         \
+    CUB_NAMESPACE_BEGIN                                     \
     template<>                                              \
     struct NumericTraits<T>                                 \
     {                                                       \
@@ -740,7 +740,7 @@ std::ostream& operator<<(std::ostream& os, const cub::KeyValuePair<Key, Value> &
             return retval;                                  \
         }                                                   \
     };                                                      \
-    } /* namespace std */
+    CUB_NAMESPACE_END
 
 
 
@@ -806,7 +806,7 @@ std::ostream& operator<<(std::ostream& os, const cub::KeyValuePair<Key, Value> &
             a.y + b.y);                                     \
         return retval;                                      \
     }                                                       \
-    namespace cub {                                         \
+    CUB_NAMESPACE_BEGIN                                         \
     template<>                                              \
     struct NumericTraits<T>                                 \
     {                                                       \
@@ -830,7 +830,7 @@ std::ostream& operator<<(std::ostream& os, const cub::KeyValuePair<Key, Value> &
             return retval;                                  \
         }                                                   \
     };                                                      \
-    } /* namespace cub */
+    CUB_NAMESPACE_END
 
 
 
@@ -903,7 +903,7 @@ std::ostream& operator<<(std::ostream& os, const cub::KeyValuePair<Key, Value> &
             a.z + b.z);                                     \
         return retval;                                      \
     }                                                       \
-    namespace cub {                                         \
+    CUB_NAMESPACE_BEGIN                                     \
     template<>                                              \
     struct NumericTraits<T>                                 \
     {                                                       \
@@ -929,7 +929,7 @@ std::ostream& operator<<(std::ostream& os, const cub::KeyValuePair<Key, Value> &
             return retval;                                  \
         }                                                   \
     };                                                      \
-    } /* namespace cub */
+    CUB_NAMESPACE_END
 
 
 /**
@@ -1008,7 +1008,7 @@ std::ostream& operator<<(std::ostream& os, const cub::KeyValuePair<Key, Value> &
             a.w + b.w);                                     \
         return retval;                                      \
     }                                                       \
-    namespace cub {                                         \
+    CUB_NAMESPACE_BEGIN                                     \
     template<>                                              \
     struct NumericTraits<T>                                 \
     {                                                       \
@@ -1036,7 +1036,7 @@ std::ostream& operator<<(std::ostream& os, const cub::KeyValuePair<Key, Value> &
             return retval;                                  \
         }                                                   \
     };                                                      \
-    } /* namespace cub */
+    CUB_NAMESPACE_END
 
 /**
  * All vector overloads
@@ -1160,7 +1160,7 @@ __host__ __device__ __forceinline__ void InitValue(GenMode gen_mode, TestFoo &va
 
 
 /// numeric_limits<TestFoo> specialization
-namespace cub {
+CUB_NAMESPACE_BEGIN
 template<>
 struct NumericTraits<TestFoo>
 {
@@ -1187,7 +1187,7 @@ struct NumericTraits<TestFoo>
             NumericTraits<char>::Lowest());
     }
 };
-} // namespace cub
+CUB_NAMESPACE_END
 
 
 //---------------------------------------------------------------------
@@ -1276,7 +1276,7 @@ __host__ __device__ __forceinline__ void InitValue(GenMode gen_mode, TestBar &va
 }
 
 /// numeric_limits<TestBar> specialization
-namespace cub {
+CUB_NAMESPACE_BEGIN
 template<>
 struct NumericTraits<TestBar>
 {
@@ -1299,7 +1299,7 @@ struct NumericTraits<TestBar>
             NumericTraits<int>::Lowest());
     }
 };
-} // namespace cub
+CUB_NAMESPACE_END
 
 
 /******************************************************************************
@@ -1357,7 +1357,7 @@ int CompareResults(float* computed, float* reference, OffsetT len, bool verbose 
  * Compares the equivalence of two arrays
  */
 template <typename OffsetT>
-int CompareResults(cub::NullType* computed, cub::NullType* reference, OffsetT len, bool verbose = true)
+int CompareResults(CUB_NS_QUALIFIER::NullType* computed, CUB_NS_QUALIFIER::NullType* reference, OffsetT len, bool verbose = true)
 {
     return 0;
 }
@@ -1393,8 +1393,8 @@ int CompareResults(double* computed, double* reference, OffsetT len, bool verbos
  * of a host array
  */
 int CompareDeviceResults(
-    cub::NullType */* h_reference */,
-    cub::NullType */* d_data */,
+    CUB_NS_QUALIFIER::NullType */* h_reference */,
+    CUB_NS_QUALIFIER::NullType */* d_data */,
     std::size_t /* num_items */,
     bool /* verbose */ = true,
     bool /* display_data */ = false)
@@ -1409,7 +1409,7 @@ int CompareDeviceResults(
 template <typename S, typename OffsetT>
 int CompareDeviceResults(
     S *h_reference,
-    cub::DiscardOutputIterator<OffsetT> d_data,
+    CUB_NS_QUALIFIER::DiscardOutputIterator<OffsetT> d_data,
     std::size_t num_items,
     bool verbose = true,
     bool display_data = false)
@@ -1511,7 +1511,7 @@ int CompareDeviceDeviceResults(
  * Print the contents of a host array
  */
 void DisplayResults(
-    cub::NullType   */* h_data */,
+    CUB_NS_QUALIFIER::NullType   */* h_data */,
     std::size_t      /* num_items */)
 {}
 
@@ -1570,7 +1570,7 @@ void InitializeSegments(
     if (num_segments <= 0)
         return;
 
-    unsigned int expected_segment_length = cub::DivideAndRoundUp(num_items, num_segments);
+    unsigned int expected_segment_length = CUB_NS_QUALIFIER::DivideAndRoundUp(num_items, num_segments);
     int offset = 0;
     for (int i = 0; i < num_segments; ++i)
     {
